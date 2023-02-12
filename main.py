@@ -30,7 +30,7 @@ class Course:
         self.color = color
 
         color.courses.append(self)
-        print "Assigned : ", self.course_code, color.day, color.slot, self.degree, self.no_of_students
+        print("Assigned : ", self.course_code, color.day, color.slot, self.degree, self.no_of_students)
         return None
 
     def get_hall_list(self):
@@ -214,13 +214,13 @@ def initialize_students(course_index):
                 course_objects.append(course_index[i])
                 #print "done"
             else:
-                print "No object for ", i
+                print("No object for ", i)
 
 
         std = Student(roll, course_objects)
         student_list.append(std)
 
-    print std.roll_no, std.courses_enrolled
+    print(std.roll_no, std.courses_enrolled)
 
     return student_list
 def dis_1(color_1, color_2):
@@ -399,7 +399,7 @@ def schedule_exam(sorted_courses,constraints,count):
             if sorted_courses.index(course)==0 and count==0:
                 r_ab, hall_list = get_first_node_color(course, color_matrix)
                 if r_ab == None:
-                    print "No schedule is possible"
+                    print("No schedule is possible")
                     break
         
             else:
@@ -434,7 +434,7 @@ def schedule_exam(sorted_courses,constraints,count):
         for j in range(TIME_SLOTS):
             for k in color_matrix[i][j].courses:
                 alloted_courses.append(k)
-    print len(alloted_courses)
+    print(len(alloted_courses))
     unalloted_courses=list(set(sorted_courses)-set(sorted_courses).intersection(alloted_courses))
     for c in unalloted_courses:
         c.flag=1
@@ -476,10 +476,10 @@ if __name__ == "__main__":
 
     graph, course_list, course_index = build_weight_matrix()
     calculate_degree(graph, course_list)    
-    print "Total Courses : ", len(course_list)
+    print("Total Courses : ", len(course_list))
 
     ct = 0
-    print ct
+    print(ct)
     sorted_courses = sorted(course_list, key = lambda course: (course.degree, course.max_adjacency), reverse = True)
     deg = []
 
@@ -490,7 +490,7 @@ if __name__ == "__main__":
     lh_list = initialize_lecture_halls(color_matrix)
     no_ofunscheduled_courses=hard_schedule(sorted_courses)
     if(no_ofunscheduled_courses!=0):
-        print "Increase days or slots.",no_ofunscheduled_courses, " courses remains unscheduled"
+        print("Increase days or slots.",no_ofunscheduled_courses, " courses remains unscheduled")
         
     count=0
     num = 0
@@ -500,8 +500,8 @@ if __name__ == "__main__":
             for key, val in i.lecture_hall.iteritems():
                 res+= " L" + str(key.number) + " " + val
             res += " Strength: " + str(i.no_of_students)
-            print res
-    print "\n"
+            print(res)
+    print("\n")
 
     output_to_csv(TIME_SLOTS, MAX_SCHEDULE_DAYS, color_matrix)
 
@@ -515,8 +515,8 @@ if __name__ == "__main__":
                 num+=k.no_of_students
                 alloted_courses.append(k)
                 l.append(k.course_code)
-            print "Day ", i, " Slot ", j, " : ", "Courses : ", l, "students : ", num
-    print "Total Courses : ", count
+            print("Day ", i, " Slot ", j, " : ", "Courses : ", l, "students : ", num)
+    print("Total Courses : ", count)
 
     test_for_clash(student_list, TIME_SLOTS)
     test_constraints(student_list, TIME_SLOTS)
