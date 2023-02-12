@@ -5,7 +5,9 @@ class Exam:
     def __init__(self, code, student_list):
         self.code = code
         self.student_list = student_list
+        self.no_student = len(student_list)
         self.adjacency_list = []
+        self.halls = {}
         self.color = None
         self.day = None
 
@@ -17,46 +19,49 @@ class Exam:
 class Room:
     def __init__(self, code, capacity):
         self.code = code
-        self.exams = []
         self.capacity = capacity
+        self.available = capacity
 
 
 def ratio(exam1, exam2):
     common = len(list(set(exam1.student_list).intersection(exam2.student_list)))
-    return common / max(len(exam1.student_list), len(exam2.student_list))
+    return common / max(exam1.no_student, exam2.no_student)
 
 
 def create_nodes(file):
     with open('data/' + file) as data_file:
         course_data = json.load(data_file)
-        # print(type(course_data))
     exams = []
     for course in course_data.keys():
-        if len(course_data[course])>0:
+        if len(course_data[course]) > 0:
             exam = Exam(code=course, student_list=course_data[course])
             exams.append(exam)
     return exams
 
-def create_map(node_list):
-    for exam in node_list:
-        for i in range(len(node_list)):
-            rat = ratio(exam, node_list[i])
-            if rat > 0 and rat != 1:
-                exam.adjacency_list.append([i, rat])
-    return node_list
+
+def create_map(exams):
+    size = len(exams)
+    exams.sort(key=lambda x: x.no_student, reverse=True)
+    for i in range(size):
+        exam = exams[i]
+        for j in range(size):
+            if j != i:
+                rat = ratio(exam, exams[j])
+                if rat > 0:
+                    exam.adjacency_list.append([j, rat])
+    return exams
 
 
 def color_map(exams, num_of_day, num_of_period, max_ratio, max_of_exam):
+    exams.sort(key=lambda x: x.no_student, reverse=True)
     for day in range(num_of_day):
         for exam in exams:
             if exam.color != None:
                 continue
             colors = [i for i in range(num_of_period)]
             in_day_rat = 0
-            exam.code
             for a in exam.adjacency_list:
                 ex = exams[a[0]]
-                ex.code
                 if (ex.color != None) and (ex.day == day):
                     try:
                         colors.remove(ex.color)
@@ -72,8 +77,44 @@ def color_map(exams, num_of_day, num_of_period, max_ratio, max_of_exam):
                     if count < max_of_exam:
                         exam.color_node(color=color, day=day)
                         break
-            # if is_color:
-            #     break
+    return exams
+
+
+def create_halls(file):
+    with open('data/' + file) as data_file:
+        hall_data = json.load(data_file)
+    halls = []
+    for key in hall_data.keys():
+        room = Room(code=key, capacity=hall_data[key])
+        halls.append(room)
+    return halls
+
+
+def finding_hall(exams, no_day, no_period, halls):
+    for i in range(no_day):
+        for j in range(no_period):
+            for hall in halls:
+                hall.available = hall.capacity
+
+            in_slot_exams = list(filter(lambda e: e.day == i and e.color == j, exams))
+            in_slot_exams.sort(key=lambda x: x.no_student)
+            halls.sort(key=lambda x: x.capacity)
+
+            for exam in in_slot_exams:
+                exam_remain = exam.no_student
+                while exam_remain > 0:
+                    for hall in halls:
+                        if hall.available == 0:
+                            continue
+                        elif exam_remain > hall.available:
+                            exam.halls[hall.code] = hall.available
+                            exam_remain -= hall.available
+                            hall.available = 0
+                        else:
+                            hall.available = hall.available - exam_remain
+                            exam.halls[hall.code] = exam_remain
+                            exam_remain = 0
+                            break
     return exams
 
 
@@ -84,9 +125,11 @@ if __name__ == "__main__":
     max_ratio = 0.34
     file = 'test_data.json'
     exams = create_nodes(file)
-    exams.sort(key=lambda x: len(x.student_list), reverse=True)
     exams = create_map(exams)
     exams = color_map(exams, num_of_day, num_of_period, max_ratio, max_of_exam)
+    halls = create_halls('test_halls.json')
+    exams = finding_hall(exams, num_of_day, num_of_period, halls)
     exams.sort(key=lambda x: x.day)
     for exam in exams:
-        print(exam.code, f"ngay:{exam.day + 1}", f"slot: {exam.color+1}")
+        # print(exam.code,exam.no_student, exam.adjacency_list)
+        print(exam.code, f"ngay:{exam.day + 1}", f"slot: {exam.color + 1}", f"{exam.halls}")
