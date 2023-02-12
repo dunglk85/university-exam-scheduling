@@ -102,6 +102,14 @@ def finding_hall(exams, no_day, no_period, halls):
 
             for exam in in_slot_exams:
                 exam_remain = exam.no_student
+                # có phòng lớn hơn hoặc băng số thí sinh
+                for hall in halls:
+                    if hall.available >= exam_remain:
+                        hall.available = hall.available - exam_remain
+                        exam.halls[hall.code] = exam_remain
+                        exam_remain = 0
+                        break
+                # không có phòng nào lớn hơn số thí sinh
                 while exam_remain > 0:
                     for hall in halls:
                         if hall.available == 0:
@@ -131,5 +139,4 @@ if __name__ == "__main__":
     exams = finding_hall(exams, num_of_day, num_of_period, halls)
     exams.sort(key=lambda x: x.day)
     for exam in exams:
-        # print(exam.code,exam.no_student, exam.adjacency_list)
         print(exam.code, f"ngay:{exam.day + 1}", f"slot: {exam.color + 1}", f"{exam.halls}")
