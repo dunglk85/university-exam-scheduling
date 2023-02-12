@@ -14,16 +14,11 @@ class Exam:
         self.day = day
 
 
-# class LectureHall:
-#     def __init__(self, code, capacity, color):
-#         self.code = code
-#         self.color = color
-#         self.capacity = capacity
-#
-#
-# class Student:
-#     def __init__(self, name):
-#         self.name = name
+class Room:
+    def __init__(self, code, capacity):
+        self.code = code
+        self.exams = []
+        self.capacity = capacity
 
 
 def ratio(exam1, exam2):
