@@ -111,9 +111,15 @@ def finding_hall(exams, no_day, no_period, halls):
                         break
                 # không có phòng nào lớn hơn số thí sinh
                 while exam_remain > 0:
+                    count = 0
                     for hall in halls:
                         if hall.available == 0:
-                            continue
+                            count += 1
+                            if count == len(halls) and exam_remain > 0:
+                                print(f"Số lượng phòng ko đủ tổ cho buoi thi {j+1} ngay {i+1}")
+                                exam_remain = 0
+                            else:
+                                continue
                         elif exam_remain > hall.available:
                             exam.halls[hall.code] = hall.available
                             exam_remain -= hall.available
@@ -122,7 +128,8 @@ def finding_hall(exams, no_day, no_period, halls):
                             hall.available = hall.available - exam_remain
                             exam.halls[hall.code] = exam_remain
                             exam_remain = 0
-                            break
+
+
     return exams
 
 
@@ -137,6 +144,6 @@ if __name__ == "__main__":
     exams = color_map(exams, num_of_day, num_of_period, max_ratio, max_of_exam)
     halls = create_halls('test_halls.json')
     exams = finding_hall(exams, num_of_day, num_of_period, halls)
-    exams.sort(key=lambda x: x.day)
+    exams.sort(key=lambda x: (x.day, x.color))
     for exam in exams:
         print(exam.code, f"ngay:{exam.day + 1}", f"slot: {exam.color + 1}", f"{exam.halls}")
